@@ -1,60 +1,49 @@
+# TrustVault – Threat Model
 
-# TrustVault - Threat Model
+## 1. Overview
+TrustVault is a secure document management application. Its main goal is to ensure that only authorized users can access confidential documents.
 
-## 1. Project Overview
-TrustVault is a secure document management system.
-It protects confidential documents using authentication,
-role-based access control and document-level permissions.
+## 2. Assets to Protect
+- User account information
+- Passwords
+- Confidential documents
+- Document permissions
+- Audit logs
+- Authentication tokens
 
-## 2. User Roles
-- Administrator: Manages users, documents and audit logs.
-- Document Owner: Uploads documents and grants or revokes access.
-- Viewer: Accesses documents only when permission is granted.
+## 3. Threats and Mitigations
 
-## 3. Security Threats and Mitigations
+| Threat | Mitigation |
+|---|---|
+| Unauthorized document access | Server-side authentication and authorization |
+| Viewer accessing private documents | Document-level permission checks |
+| User downloading without permission | Verify access before download |
+| Unauthorized document editing | Check edit permission on the server |
+| Access after revocation | Check current permissions for every request |
+| Unauthorized admin access | Restrict admin APIs to Administrator role |
+| Invalid file uploads | Validate uploaded files |
+| Unauthorized permission changes | Only document owners can grant or revoke access |
+| Audit log manipulation | Restrict audit log access to authorized users |
+| Repeated failed access attempts | Record refused access attempts in audit logs |
 
-### Threat 1: Unauthorized Login
-Risk: An attacker may try to access the application.
-Mitigation: Password hashing using bcrypt and JWT authentication.
+## 4. Role-Based Access Control
 
-### Threat 2: Unauthorized Document Access
-Risk: A user may access another owner's private document.
-Mitigation: Server-side authorization checks on every document request.
+- **Administrator:** Can monitor users, documents, and audit activity.
+- **Document Owner:** Can upload documents and manage document permissions.
+- **Viewer:** Can access only documents shared with them.
 
-### Threat 3: Permission Abuse
-Risk: A viewer may try to edit a read-only document.
-Mitigation: Verify document-level permissions before editing.
+## 5. Accepted Risks
+- Service availability may be affected by hosting provider downtime.
+- Stolen user credentials may allow account misuse.
+- External infrastructure failures may temporarily affect document access.
 
-### Threat 4: Access After Revocation
-Risk: A user may continue accessing a document after permission is revoked.
-Mitigation: Check current database permissions on every request.
+## 6. Security Testing
+The application should be tested to verify:
+- Users cannot access documents without permission.
+- Viewers cannot edit documents.
+- Revoked users cannot access previously shared documents.
+- Only administrators can access admin APIs.
+- Unauthorized requests are recorded in audit logs.
 
-### Threat 5: Malicious File Upload
-Risk: An attacker may upload unsafe files.
-Mitigation: Validate uploaded files and enforce file size limits.
-
-### Threat 6: Audit Log Tampering
-Risk: A user may try to modify or delete activity records.
-Mitigation: Restrict audit log access and prevent ordinary users from modifying logs.
-
-### Threat 7: Unauthorized API Requests
-Risk: An attacker may call backend APIs directly.
-Mitigation: Authenticate and authorize requests on the server.
-
-## 4. Accepted Risks
-- A compromised user password may allow account misuse.
-- Database or server administrators may have privileged access.
-- Previously downloaded files cannot be remotely deleted from a user's device.
-
-## 5. Security Testing
-- Unauthenticated API access tests.
-- Incorrect password tests.
-- Cross-user document access tests.
-- Read and edit permission tests.
-- Permission revocation tests.
-- Unauthorized download tests.
-- Audit log access tests.
-
-## 6. Security Principle
-TrustVault follows the principle of least privilege.
-Users receive only the minimum document permissions required.
+## 7. Conclusion
+TrustVault uses server-side authorization, role-based access control, document permissions, and audit logging to protect confidential documents.
