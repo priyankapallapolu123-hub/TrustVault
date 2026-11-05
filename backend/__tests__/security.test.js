@@ -27,7 +27,7 @@ describe("TrustVault Security Tests", () => {
         const response = await request(app)
             .post("/api/login")
             .send({
-                email: "owner@test.com",
+                email: "siri@gmail.com",
                 password: process.env.TEST_OWNER_PASSWORD
             });
 
