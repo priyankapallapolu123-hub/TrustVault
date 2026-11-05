@@ -3,7 +3,28 @@ import { useState } from "react";
 import Dashboard from "./Dashboard";
 import "./App.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
+
+// Safely read the server response
+async function readApiResponse(response) {
+  const responseText = await response.text();
+
+  if (!responseText) {
+    throw new Error(
+      `Server returned an empty response. HTTP Status: ${response.status}`
+    );
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    throw new Error(
+      `Server returned an invalid response. HTTP Status: ${response.status}`
+    );
+  }
+}
 
 function App() {
   const [mode, setMode] = useState("login");
@@ -23,6 +44,7 @@ function App() {
     Boolean(sessionStorage.getItem("trustvaultToken"))
   );
 
+  // REGISTER
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
@@ -54,10 +76,12 @@ function App() {
         }),
       });
 
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Registration failed.");
+        throw new Error(
+          data.message || `Registration failed. HTTP Status: ${response.status}`
+        );
       }
 
       setMessage("Registration successful! Please login.");
@@ -66,12 +90,14 @@ function App() {
       setConfirmPassword("");
       setName("");
     } catch (err) {
+      console.error("Registration error:", err);
       setError(err.message || "Unable to register. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -91,10 +117,16 @@ function App() {
         }),
       });
 
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Invalid email or password.");
+        throw new Error(
+          data.message || `Login failed. HTTP Status: ${response.status}`
+        );
+      }
+
+      if (!data.user || !data.token) {
+        throw new Error("Login response is missing user or token details.");
       }
 
       if (data.user.role !== role) {
@@ -106,15 +138,18 @@ function App() {
 
       setLoggedIn(true);
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // LOGOUT
   const handleLogout = () => {
     sessionStorage.removeItem("trustvaultToken");
     sessionStorage.removeItem("trustvaultUser");
+
     setLoggedIn(false);
     setEmail("");
     setPassword("");
@@ -136,7 +171,12 @@ function App() {
         </div>
 
         <div className="hero-content">
-          <h1>Your Documents.<br />Your Control.</h1>
+          <h1>
+            Your Documents.
+            <br />
+            Your Control.
+          </h1>
+
           <p>
             A secure document management platform designed to protect
             confidential files and keep every access accountable.
@@ -158,7 +198,9 @@ function App() {
       <div className="login-right">
         <div className="login-card">
           <h2>
-            {mode === "login" ? "Welcome Back!" : "Create Your Account"}
+            {mode === "login"
+              ? "Welcome Back!"
+              : "Create Your Account"}
           </h2>
 
           <p className="login-subtitle">
@@ -182,39 +224,52 @@ function App() {
           <form onSubmit={mode === "login" ? handleLogin : handleRegister}>
             {mode === "register" && (
               <div className="form-group">
-                <label>Full Name</label>
+                <label htmlFor="fullName">Full Name</label>
                 <input
+                  id="fullName"
+                  name="name"
                   type="text"
                   placeholder="Enter your full name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  autoComplete="name"
                   required
                 />
               </div>
             )}
 
             <div className="form-group">
-              <label>Email Address</label>
+              <label htmlFor="email">Email Address</label>
               <input
+                id="email"
+                name="email"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label htmlFor="password">Password</label>
+
               <div style={{ display: "flex", gap: "8px" }}>
                 <input
+                  id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={
+                    mode === "login" ? "current-password" : "new-password"
+                  }
                   required
                   style={{ flex: 1 }}
                 />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -226,23 +281,28 @@ function App() {
 
             {mode === "register" && (
               <div className="form-group">
-                <label>Confirm Password</label>
+                <label htmlFor="confirmPassword">Confirm Password</label>
                 <input
+                  id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
                   placeholder="Confirm your password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
                   required
                 />
               </div>
             )}
 
             <div className="form-group">
-              <label>
+              <label htmlFor="role">
                 {mode === "login" ? "Login As" : "Select Your Role"}
               </label>
 
               <select
+                id="role"
+                name="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 required
@@ -250,6 +310,7 @@ function App() {
                 {mode === "login" && (
                   <option value="Administrator">Administrator</option>
                 )}
+
                 <option value="Document Owner">Document Owner</option>
                 <option value="Viewer">Viewer</option>
               </select>
