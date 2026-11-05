@@ -1,16 +1,69 @@
-# React + Vite
+# TrustVault – Secure Document Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Overview
+TrustVault is a secure document management platform designed to protect confidential documents. It ensures that only authorized users can access documents and records document activities through audit logs.
 
-Currently, two official plugins are available:
+## Live Application
+- Frontend: https://trustvault-1qb.pages.dev/
+- Backend API: https://trustvault-2yk4.onrender.com
+- Health Check: https://trustvault-2yk4.onrender.com/api/health
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## User Roles
 
-## React Compiler
+### 1. Administrator
+- View documents across the platform.
+- View users and document activity.
+- Monitor audit logs.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Document Owner
+- Upload and manage documents.
+- Grant document access.
+- Revoke document access.
 
-## Expanding the ESLint configuration
+### 3. Viewer
+- View documents shared with them.
+- Access only authorized documents.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Key Features
+- User registration and login.
+- Role-based access control.
+- Secure document upload and management.
+- Document permissions.
+- Access grant and revocation.
+- Audit logging.
+- Document search.
+- Unauthorized access protection.
+
+## Technology Stack
+- Frontend: React, Vite
+- Backend: Node.js, Express.js
+- Database: TiDB Cloud (MySQL compatible)
+- Deployment: Cloudflare Pages and Render
+
+## Security
+- Server-side authorization.
+- Role-based permissions.
+- Document-level access control.
+- Access revocation.
+- Audit logs.
+
+## Running Locally
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Backend
+```bash
+cd backend
+npm install
+npm start
+```
+
+Configure the required database and environment variables before running the backend.
+
+## Project Repository
+https://github.com/priyankapallapolu123-hub/TrustVault
